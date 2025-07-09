@@ -1,10 +1,14 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
+const morgan = require('morgan');
+
+const Note = require('./models/note.js')
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static('dist'));
+app.use(morgan('tiny'));
 
 let notes = [
 	{ id: "1", content: "HTML is easy", important: true },
@@ -46,7 +50,9 @@ app.post('/api/notes', (request, response) => {
 })
 
 app.get('/api/notes', (request, response) => {
-	response.json(notes);
+	Note.find({}).then(notes => {
+		response.json(notes);
+	})
 })
 
 app.get('/api/notes/:id', (request, response) => {
