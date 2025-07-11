@@ -1,28 +1,17 @@
 const notesRouter = require('express').Router();
 const Note = require('../models/note');
 
-notesRouter.post('/', async (request, response, next) => {
-	const body = request.body;
+notesRouter.post('/', async (request, response) => {
+  const body = request.body
 
-	// handle missing content
-	if (!body.content) {
-		return response.status(400).json({
-			error: 'content missing'
-		});
-	}
+  const note = new Note({
+    content: body.content,
+    important: body.important || false,
+  })
 
-	const note = new Note({
-		content: body.content,
-		important: body.important || false,
-	});
-
-	try {
-		const savedNote = await note.save();
-		response.status(201).json(savedNote);
-	} catch (exception) {
-		next(exception);
-	}
-});
+  const savedNote = await note.save()
+  response.status(201).json(savedNote)
+})
 
 notesRouter.get('/', (request, response) => {
 	Note.find({}).then(notes => {
