@@ -1,5 +1,8 @@
 const Note = require('../models/note');
 
+//:NOTE:
+//this file is for storing all the test data and functions used in testing
+
 const initialNotes = [
 	{
 		content: 'HTML is easy',

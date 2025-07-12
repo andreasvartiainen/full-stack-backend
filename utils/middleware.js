@@ -12,6 +12,10 @@ const unknownEnpoint = (request, response) => {
 	response.status(404).send({ error: 'unknown endpoint' });
 };
 
+const badRequest = (request, response) => {
+	response.status(400).send({ error: 'bad endpoint :)' });
+};
+
 // remember to do error handlers last
 const errorHandler = (error, request, response, next) => {
 	switch (error.name) {
@@ -28,5 +32,6 @@ const errorHandler = (error, request, response, next) => {
 module.exports = {
 	requestLogger,
 	unknownEnpoint,
+	badRequest,
 	errorHandler
 };

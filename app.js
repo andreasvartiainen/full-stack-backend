@@ -23,6 +23,7 @@ app.use(morgan('tiny'));
 app.use('/api/notes', notesRouter);
 
 app.use(middleware.unknownEnpoint);
+app.use(middleware.badRequest);
 app.use(middleware.errorHandler);
 
 module.exports = app;

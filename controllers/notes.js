@@ -2,62 +2,61 @@ const notesRouter = require('express').Router();
 const Note = require('../models/note');
 
 notesRouter.post('/', async (request, response) => {
-  const body = request.body
+	const body = request.body;
 
-  const note = new Note({
-    content: body.content,
-    important: body.important || false,
-  })
+	const note = new Note({
+		content: body.content,
+		important: body.important || false,
+	});
 
-  const savedNote = await note.save()
-  response.status(201).json(savedNote)
+	const savedNote = await note.save();
+	response.status(201).json(savedNote);
 })
 
-notesRouter.get('/', (request, response) => {
-	Note.find({}).then(notes => {
-		response.json(notes);
-	});
+notesRouter.get('/', async (request, response, next) => {
+	const resultNotes = await Note.find({});
+	response.json(resultNotes);
 });
 
-notesRouter.get('/:id', (request, response, next) => {
+notesRouter.get('/:id', async (request, response, next) => {
 	const id = request.params.id;
 
-	Note.findById(id).then(note => {
-		if (note)
-			response.json(note);
-		else
-			response.status(404).end();
-	}).catch(error => next(error));
+	//:NOTE:
+	//	wrapping async calls to try .. catch is a
+	//	way to get the errors 
+	//	but starting from express 5 this is unnecessary ?? and doesn't
+	//	have to or can install the express-async-error library
+	const resultNote = await Note.findById(id);
+
+	if (resultNote) {
+		response.json(resultNote);
+	} else {
+		response.status(404).end();
+	}
 });
 
-notesRouter.delete('/:id', (request, response, next) => {
+notesRouter.delete('/:id', async (request, response, next) => {
 	const id = request.params.id;
 
-	Note.findByIdAndDelete(id)
-		.then(() => {
-			response.status(204).end();
-		})
-		.catch(error => next(error));
+	await Note.findByIdAndDelete(id);
+	response.status(204).end();
+
 });
 
 notesRouter.put('/:id', (request, response, next) => {
 	const { content, important } = request.body;
 	const id = request.params.id;
 
-	Note.findById(id)
-		.then(note => {
-			if (!note) {
-				return response.status(404).end();
-			}
+	const resultNote = Note.findById(id);
+	if (!resultNote) {
+		response.status(404).end();
+	}
 
-			note.content = content;
-			note.important = important;
+	resultNote.content = content;
+	resultNote.important = important;
 
-			return note.save().then(updatedNote => {
-				response.json(updatedNote);
-			});
-		})
-		.catch(error => next(error));
+	resultNote.save();
+	response.json(resultNote);
 });
 
 module.exports = notesRouter;
