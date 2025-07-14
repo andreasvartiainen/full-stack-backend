@@ -1,17 +1,29 @@
 const notesRouter = require('express').Router();
 const Note = require('../models/note');
+const User = require('../models/user');
 
 notesRouter.post('/', async (request, response) => {
 	const body = request.body;
 
+	const user = await User.findById(body.userId);
+
+	if (!user) {
+		return response.status(400).json({ error: 'userId missing or not valid' });
+	}
+
 	const note = new Note({
 		content: body.content,
 		important: body.important || false,
+		user: user._id
 	});
 
 	const savedNote = await note.save();
+	// add note to the user and save user mentioned in the note
+	user.notes = user.notes.concat(savedNote._id);
+	await user.save();
+
 	response.status(201).json(savedNote);
-})
+});
 
 notesRouter.get('/', async (request, response, next) => {
 	const resultNotes = await Note.find({});
@@ -23,7 +35,7 @@ notesRouter.get('/:id', async (request, response, next) => {
 
 	//:NOTE:
 	//	wrapping async calls to try .. catch is a
-	//	way to get the errors 
+	//	way to get the errors
 	//	but starting from express 5 this is unnecessary ?? and doesn't
 	//	have to or can install the express-async-error library
 	const resultNote = await Note.findById(id);

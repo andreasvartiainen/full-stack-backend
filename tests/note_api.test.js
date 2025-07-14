@@ -10,6 +10,7 @@ const assert = require('node:assert');
 const app = require('../app');
 const helper = require('./test_helper');
 const Note = require('../models/note');
+const User = require('../models/user');
 
 // :NOTE:
 // supertest package helps testing api calls
@@ -82,9 +83,12 @@ test('all notes are returned', async () => {
 });
 
 test('a valid note can be added ', async () => {
+	const users = await helper.usersInDb();
+
 	const newNote = {
 		content: 'async/await simplifies making async calls',
 		important: true,
+		userId: users[0].id
 	};
 
 	// create new note and wait till the function finishes
