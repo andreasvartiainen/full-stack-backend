@@ -17,7 +17,7 @@ const badRequest = (request, response) => {
 };
 
 // remember to do error handlers last
-const errorHandler = (error, request, response, next) => {
+const errorHandler = (error, _ , response, next) => {
 	switch (error.name) {
 	case 'CastError': {
 		return response.status(400).send({ error: 'malformed id' });
@@ -29,6 +29,13 @@ const errorHandler = (error, request, response, next) => {
 		if (error.message.includes('E11000 duplicate key error')) {
 			return response.status(400).json({ error: 'expected `username` to be unique' });
 		}
+		return response.status(400).send({ error: 'MongoServerError' });
+	}
+	case 'JsonWebTokenError': {
+		return response.status(401).json({ error: 'token invalid' });
+	}
+	case 'TokenExpiredError': {
+		return response.status(401).json({ error: 'token expired' });
 	}
 	}
 	next(error);
